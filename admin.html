@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级兑换码管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #764ba2;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        .section {
+            background: #f8f9ff;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 15px;
+            border-left: 5px solid #764ba2;
+        }
+        h2 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        input, select, button, textarea {
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+        }
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            height: fit-content;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+        button.secondary {
+            background: #6c757d;
+        }
+        button.success {
+            background: #28a745;
+        }
+        button.warning {
+            background: #ffc107;
+            color: #000;
+        }
+        button.danger {
+            background: #dc3545;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px dashed #764ba2;
+        }
+        textarea {
+            font-family: 'Courier New', monospace;
+            height: 120px;
+            resize: vertical;
+            background: #f8f9fa;
+        }
+        .code-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .code-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .code-item.used {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+        .code-item.expired {
+            border-left-color: #ffc107;
+            background: #fffbf0;
+        }
+        .code-item.multi-use {
+            border-left-color: #17a2b8;
+            background: #f0f9ff;
+        }
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .code-value {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .code-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+        }
+        .detail-value {
+            color: #333;
+        }
+        .code-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            color: #764ba2;
+            font-size: 1.5rem;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            flex: 1;
+        }
+        .usage-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .usage-available {
+            background: #d4edda;
+            color: #155724;
+        }
+        .usage-used {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .usage-partial {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 高级兑换码管理系统</h1>
+        <p class="subtitle">查找、修改、重置、多次数使用 - 完全控制</p>
+        
+        <!-- 数据统计 -->
+        <div class="dashboard">
+            <div class="stat-card">
+                <div class="stat-label">总兑换码数量</div>
+                <div class="stat-number" id="totalCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">已使用数量</div>
+                <div class="stat-number" id="usedCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">可用数量</div>
+                <div class="stat-number" id="availableCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">多次数兑换码</div>
+                <div class="stat-number" id="multiUseCount">0</div>
+            </div>
+        </div>
+
+        <!-- 快速搜索 -->
+        <div class="section">
+            <h2>🔍 快速查找兑换码</h2>
+            <div class="search-box">
+                <input type="text" id="quickSearch" placeholder="输入兑换码精确查找..." oninput="quickSearchCode()">
+                <button onclick="clearSearch()">清除搜索</button>
+            </div>
+            <div id="quickSearchResult"></div>
+        </div>
+
+        <!-- 生成兑换码区域 -->
+        <div class="section">
+            <h2>🚀 生成兑换码</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>生成数量</label>
+                    <input type="number" id="count" value="5" min="1" max="50">
+                </div>
+                <div class="form-group">
+                    <label>使用次数</label>
+                    <select id="maxUses">
+                        <option value="1">1次（默认）</option>
+                        <option value="3">3次</option>
+                        <option value="5">5次</option>
+                        <option value="10">10次</option>
+                        <option value="999">无限次</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>有效期</label>
+                    <select id="validity">
+                        <option value="1">1个月</option>
+                        <option value="3" selected>3个月</option>
+                        <option value="6">6个月</option>
+                        <option value="12">12个月</option>
+                    </select>
+                </div>
+                <button onclick="generateCodes()">🎁 生成兑换码</button>
+            </div>
+            <div class="result" id="generateResult" style="display: none;"></div>
+        </div>
+
+        <!-- 兑换码列表 -->
+        <div class="section">
+            <h2>📋 所有兑换码</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>筛选状态</label>
+                    <select id="filterStatus" onchange="loadCodes()">
+                        <option value="all">全部</option>
+                        <option value="available">未使用</option>
+                        <option value="used">已使用</option>
+                        <option value="expired">已过期</option>
+                        <option value="multi">多次数</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>搜索关键词</label>
+                    <input type="text" id="searchCode" placeholder="输入兑换码或客户名搜索" oninput="loadCodes()">
+                </div>
+                <button onclick="loadCodes()" class="secondary">🔄 刷新列表</button>
+            </div>
+            <div class="code-list" id="codesList"></div>
+        </div>
+
+        <!-- 批量操作 -->
+        <div class="section">
+            <h2>⚡ 批量操作</h2>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="exportAvailableCodes()" class="success">📤 导出未使用</button>
+                <button onclick="cleanExpiredCodes()" class="secondary">🗑️ 清理过期</button>
+                <button onclick="resetAllUses()" class="warning">🔄 重置所有使用次数</button>
+                <button onclick="showAddUsesModal()" class="success">➕ 批量增加次数</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑兑换码模态框 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">✏️ 编辑兑换码</h3>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editCode">
+                <div class="form-group">
+                    <label>兑换码</label>
+                    <input type="text" id="editCodeDisplay" readonly>
+                </div>
+                <div class="form-group">
+                    <label>最大使用次数</label>
+                    <input type="number" id="editMaxUses" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>当前使用次数</label>
+                    <input type="number" id="editCurrentUses" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>客户名称</label>
+                    <input type="text" id="editCustomerName" placeholder="输入客户名称">
+                </div>
+                <div class="form-group">
+                    <label>备注信息</label>
+                    <textarea id="editNotes" placeholder="添加备注信息..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>过期时间</label>
+                    <input type="date" id="editExpiresAt" required>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" onclick="closeEditModal()" class="btn-small secondary">取消</button>
+                    <button type="submit" class="btn-small">💾 保存修改</button>
+                    <button type="button" onclick="resetThisCode()" class="btn-small warning">🔄 重置使用次数</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 增加使用次数模态框 -->
+    <div id="addUsesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">➕ 增加使用次数</h3>
+                <button class="close-btn" onclick="closeAddUsesModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>选择兑换码</label>
+                <select id="addUsesCodeSelect">
+                    <option value="">-- 选择要修改的兑换码 --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>增加的使用次数</label>
+                <input type="number" id="addUsesCount" value="1" min="1" max="100">
+            </div>
+            <div class="form-group">
+                <label>或输入兑换码</label>
+                <input type="text" id="addUsesCodeInput" placeholder="直接输入兑换码">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="button" onclick="closeAddUsesModal()" class="btn-small secondary">取消</button>
+                <button type="button" onclick="addUsesToCode()" class="btn-small success">✅ 增加次数</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // 初始化 Supabase - 替换为你的实际信息
+        const supabaseUrl = 'https://whxquysnluktjhkfnsql.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoeHF1eXNubHVrdGpoa2Zuc3FsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NjgzMTIsImV4cCI6MjA3OTA0NDMxMn0.7aY9fz63uzmLwoc2o8z7iCnXwvtEtEacDlNksR-ik_I';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // 显示网站地址
+        document.getElementById('siteUrl').textContent = window.location.href.replace('/admin.html', '');
+
+        // 页面加载时自动加载数据
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCodes();
+            updateStats();
+        });
+
+        // 更新统计信息
+        async function updateStats() {
+            try {
+                const { data, error } = await supabase.from('redemption_codes').select('*');
+                if (error) throw error;
+                
+                const total = data.length;
+                const used = data.filter(item => item.current_uses >= item.max_uses).length;
+                const available = data.filter(item => item.current_uses < item.max_uses && new Date(item.expires_at) > new Date()).length;
+                const multiUse = data.filter(item => item.max_uses > 1).length;
+                
+                document.getElementById('totalCount').textContent = total;
+                document.getElementById('usedCount').textContent = used;
+                document.getElementById('availableCount').textContent = available;
+                document.getElementById('multiUseCount').textContent = multiUse;
+            } catch (error) {
+                console.error('更新统计失败:', error);
+            }
+        }
+
+        // 快速搜索兑换码
+        async function quickSearchCode() {
+            const searchTerm = document.getElementById('quickSearch').value.trim();
+            const resultDiv = document.getElementById('quickSearchResult');
+            
+            if (!searchTerm) {
+                resultDiv.innerHTML = '';
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('redemption_codes')
+                    .select('*')
+                    .ilike('code', `%${searchTerm}%`)
+                    .limit(5);
+                
+                if (error) throw error;
+                
+                if (!data || data.length === 0) {
+                    resultDiv.innerHTML = '<p>❌ 未找到匹配的兑换码</p>';
+                    return;
+                }
+                
+                let html = '<div class="result"><h4>搜索结果：</h4>';
+                data.forEach(item => {
+                    const isExpired = new Date(item.expires_at) < new Date();
+                    const isFullyUsed = item.current_uses >= item.max_uses;
+                    const status = isFullyUsed ? 'used' : (isExpired ? 'expired' : 'available');
+                    const statusText = isFullyUsed ? '已用完' : (isExpired ? '已过期' : '可用');
+                    const usageText = item.max_uses > 1 ? `${item.current_uses}/${item.max_uses} 次` : '1次';
+                    
+                    html += `
+                        <div class="code-item ${status}">
+                            <div class="code-header">
+                                <div class="code-value">${item.code}</div>
+                                <span class="usage-badge ${isFullyUsed ? 'usage-used' : (item.current_uses > 0 ? 'usage-partial' : 'usage-available')}">
+                                    ${usageText}
+                                </span>
+                            </div>
+                            <div class="code-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">状态:</span>
+                                    <span class="detail-value">${statusText}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">过期时间:</span>
+                                    <span class="detail-value">${new Date(item.expires_at).toLocaleDateString()}</span>
+                                </div>
+                                ${item.customer_name ? `
+                                <div class="detail-item">
+                                    <span class="detail-label">客户:</span>
+                                    <span class="detail-value">${item.customer_name}</span>
+                                </div>` : ''}
+                                ${item.notes ? `
+                                <div class="detail-item">
+                                    <span class="detail-label">备注:</span>
+                                    <span class="detail-value">${item.notes}</span>
+                                </div>` : ''}
+                            </div>
+                            <div class="code-actions">
+                                <button onclick="editCode('${item.code}')" class="btn-small">✏️ 编辑</button>
+                                <button onclick="copySingleCode('${item.code}')" class="btn-small success">📋 复制</button>
+                                <button onclick="addUsesToSpecificCode('${item.code}', 1)" class="btn-small warning">➕ 加1次</button>
+                                <button onclick="resetSpecificCode('${item.code}')" class="btn-small secondary">🔄 重置</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = '<p>❌ 搜索失败</p>';
+            }
+        }
+
+        // 清除搜索
+        function clearSearch() {
+            document.getElementById('quickSearch').value = '';
+            document.getElementById('quickSearchResult').innerHTML = '';
+        }
+
+        // 生成兑换码（支持多次数）
+        async function generateCodes() {
+            const count = parseInt(document.getElementById('count').value);
+            const maxUses = parseInt(document.getElementById('maxUses').value);
+            const validity = parseInt(document.getElementById('validity').value);
+            const resultDiv = document.getElementById('generateResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>⏳ 正在生成兑换码，请稍候...</p>';
+            
+            try {
+                const codes = [];
+                const expiryDate = new Date();
+                expiryDate.setMonth(expiryDate.getMonth() + validity);
+                
+                // 生成唯一的兑换码
+                const timestamp = Date.now().toString(36);
+                for (let i = 1; i <= count; i++) {
+                    const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+                    const code = `PSYCH${timestamp.substring(0, 4)}${i.toString().padStart(3, '0')}${randomPart}`;
+                    codes.push(code);
+                }
+                
+                // 批量插入数据库
+                const insertData = codes.map(code => ({
+                    code: code,
+                    expires_at: expiryDate.toISOString(),
+                    max_uses: maxUses,
+                    current_uses: 0,
+                    used: false,
+                    created_at: new Date().toISOString()
+                }));
+                
+                const { data, error } = await supabase
+                    .from('redemption_codes')
+                    .insert(insertData);
+                
+                if (error) {
+                    resultDiv.innerHTML = `<div class="alert alert-danger">❌ 生成失败：${error.message}</div>`;
+                } else {
+                    const codesText = codes.join('\n');
+                    const usesInfo = maxUses === 1 ? '1次使用' : `${maxUses}次使用`;
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            ✅ 成功生成 ${codes.length} 个兑换码！ (${usesInfo})
+                        </div>
+                        <p><strong>有效期至：</strong> ${expiryDate.toLocaleDateString()}</p>
+                        <textarea readonly>${codesText}</textarea>
+                        <div style="margin-top: 15px;">
+                            <button onclick="copyToClipboard('${codesText.replace(/\n/g, '\\n')}')" class="copy-btn">📋 复制所有兑换码</button>
+                        </div>
+                    `;
+                }
+                
+                loadCodes();
+                updateStats();
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="alert alert-danger">❌ 系统错误：${error.message}</div>`;
+            }
+        }
+
+        // 加载兑换码列表（增强版）
+        async function loadCodes() {
+            const listDiv = document.getElementById('codesList');
+            const filterStatus = document.getElementById('filterStatus').value;
+            const searchCode = document.getElementById('searchCode').value.toLowerCase();
+            
+            listDiv.innerHTML = '<p>⏳ 加载中...</p>';
+            
+            try {
+                let query = supabase.from('redemption_codes').select('*');
+                
+                // 应用筛选
+                if (filterStatus === 'available') {
+                    query = query.lt('current_uses', supabase.raw('max_uses')).gt('expires_at', new Date().toISOString());
+                } else if (filterStatus === 'used') {
+                    query = query.gte('current_uses', supabase.raw('max_uses'));
+                } else if (filterStatus === 'expired') {
+                    query = query.lt('expires_at', new Date().toISOString());
+                } else if (filterStatus === 'multi') {
+                    query = query.gt('max_uses', 1);
+                }
+                
+                const { data, error } = await query.order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                if (!data || data.length === 0) {
+                    listDiv.innerHTML = '<p>📭 没有找到兑换码</p>';
+                    return;
+                }
+                
+                // 应用搜索筛选
+                let filteredData = data;
+                if (searchCode) {
+                    filteredData = data.filter(item => 
+                        item.code.toLowerCase().includes(searchCode) ||
+                        (item.customer_name && item.customer_name.toLowerCase().includes(searchCode)) ||
+                        (item.notes && item.notes.toLowerCase().includes(searchCode))
+                    );
+                }
+                
+                let html = '';
+                filteredData.forEach(item => {
+                    const isExpired = new Date(item.expires_at) < new Date();
+                    const isFullyUsed = item.current_uses >= item.max_uses;
+                    const status = isFullyUsed ? 'used' : (isExpired ? 'expired' : (item.max_uses > 1 ? 'multi-use' : 'available'));
+                    const statusText = isFullyUsed ? '✅ 已用完' : (isExpired ? '⏰ 已过期' : (item.current_uses > 0 ? '🟡 使用中' : '🟢 可用'));
+                    const usageText = item.max_uses > 1 ? `${item.current_uses}/${item.max_uses} 次` : '1次';
+                    
+                    html += `
+                        <div class="code-item ${status}">
+                            <div class="code-header">
+                                <div class="code-value">${item.code}</div>
+                                <span class="usage-badge ${isFullyUsed ? 'usage-used' : (item.current_uses > 0 ? 'usage-partial' : 'usage-available')}">
+                                    ${usageText}
+                                </span>
+                            </div>
+                            <div class="code-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">状态:</span>
+                                    <span class="detail-value">${statusText}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">过期时间:</span>
+                                    <span class="detail-value">${new Date(item.expires_at).toLocaleDateString()}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">创建时间:</span>
+                                    <span class="detail-value">${new Date(item.created_at).toLocaleDateString()}</span>
+                                </div>
+                                ${item.customer_name ? `
+                                <div class="detail-item">
+                                    <span class="detail-label">客户:</span>
+                                    <span class="detail-value">${item.customer_name}</span>
+                                </div>` : ''}
+                                ${item.notes ? `
+                                <div class="detail-item">
+                                    <span class="detail-label">备注:</span>
+                                    <span class="detail-value">${item.notes}</span>
+                                </div>` : ''}
+                            </div>
+                            <div class="code-actions">
+                                <button onclick="editCode('${item.code}')" class="btn-small">✏️ 编辑</button>
+                                <button onclick="copySingleCode('${item.code}')" class="btn-small success" ${isFullyUsed || isExpired ? 'disabled' : ''}>📋 复制</button>
+                                <button onclick="addUsesToSpecificCode('${item.code}', 1)" class="btn-small warning">➕ 加1次</button>
+                                <button onclick="addUsesToSpecificCode('${item.code}', 5)" class="btn-small warning">➕ 加5次</button>
+                                <button onclick="resetSpecificCode('${item.code}')" class="btn-small secondary">🔄 重置</button>
+                                <button onclick="deleteCode('${item.code}')" class="btn-small danger">🗑️ 删除</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                listDiv.innerHTML = html;
+                
+            } catch (error) {
+                listDiv.innerHTML = `<div class="alert alert-danger">❌ 加载失败：${error.message}</div>`;
+            }
+        }
+
+        // 编辑兑换码
+        async function editCode(code) {
+            try {
+                const { data, error } = await supabase
+                    .from('redemption_codes')
+                    .select('*')
+                    .eq('code', code)
+                    .single();
+                
+                if (error) throw error;
+                
+                // 填充表单
+                document.getElementById('editCode').value = code;
+                document.getElementById('editCodeDisplay').value = code;
+                document.getElementById('editMaxUses').value = data.max_uses;
+                document.getElementById('editCurrentUses').value = data.current_uses;
+                document.getElementById('editCustomerName').value = data.customer_name || '';
+                document.getElementById('editNotes').value = data.notes || '';
+                
+                const expiresAt = new Date(data.expires_at);
+                document.getElementById('editExpiresAt').value = expiresAt.toISOString().split('T')[0];
+                
+                // 显示模态框
+                document.getElementById('editModal').style.display = 'flex';
+            } catch (error) {
+                alert('获取兑换码信息失败：' + error.message);
+            }
+        }
+
+        // 关闭编辑模态框
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // 保存编辑
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const code = document.getElementById('editCode').value;
+            const maxUses = parseInt(document.getElementById('editMaxUses').value);
+            const currentUses = parseInt(document.getElementById('editCurrentUses').value);
+            const customerName = document.getElementById('editCustomerName').value;
+            const notes = document.getElementById('editNotes').value;
+            const expiresAt = document.getElementById('editExpiresAt').value;
+            
+            // 验证
+            if (currentUses > maxUses) {
+                alert('当前使用次数不能超过最大使用次数！');
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('redemption_codes')
+                    .update({
+                        max_uses: maxUses,
+                        current_uses: currentUses,
+                        customer_name: customerName,
+                        notes: notes,
+                        expires_at: new Date(expiresAt).toISOString(),
+                        used: currentUses >= maxUses
+                    })
+                    .eq('code', code);
+                
+                if (error) throw error;
+                
+                alert('✅ 更新成功！');
+                closeEditModal();
+                loadCodes();
+                updateStats();
+                
+            } catch (error) {
+                alert('❌ 更新失败：' + error.message);
+            }
+        });
+
+        // 重置特定兑换码的使用次数
+        async function resetSpecificCode(code) {
+            if (!confirm(`确定要重置兑换码 ${code} 的使用次数吗？`)) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('redemption_codes')
+                    .update({
+                        current_uses: 0,
+                        used: false,
+                        used_at: null
+                    })
+                    .eq('code', code);
+                
+                if (error) throw error;
+                
+                alert('✅ 重置成功！');
+                loadCodes();
+                updateStats();
+            } catch (error) {
+                alert('❌ 重置失败：' + error.message);
+            }
+        }
+
+        // 重置当前编辑的兑换码
+        function resetThisCode() {
+            const code = document.getElementById('editCode').value;
+            resetSpecificCode(code);
+        }
+
+        // 为特定兑换码增加使用次数
+        async function addUsesToSpecificCode(code, addCount = 1) {
+            try {
+                // 先获取当前信息
+                const { data, error } = await supabase
+                    .from('redemption_codes')
+                    .select('max_uses, current_uses')
+                    .eq('code', code)
+                    .single();
+                
+                if (error) throw error;
+                
+                const newUses = data.current_uses + addCount;
+                const newUsed = newUses >= data.max_uses;
+                
+                const { error: updateError } = await supabase
+                    .from('redemption_codes')
+                    .update({
+                        current_uses: newUses,
+                        used: newUsed,
+                        used_at: newUsed ? new Date().toISOString() : null
+                    })
+                    .eq('code', code);
+                
+                if (updateError) throw updateError;
+                
+                alert(`✅ 成功为 ${code} 增加 ${addCount} 次使用次数！\n新的使用次数: ${newUses}/${data.max_uses}`);
+                loadCodes();
+                updateStats();
+            } catch (error) {
+                alert('❌ 增加次数失败：' + error.message);
+            }
+        }
+
+        // 显示增加次数模态框
+        async function showAddUsesModal() {
+            // 加载可用兑换码到下拉框
+            const select = document.getElementById('addUsesCodeSelect');
+            select.innerHTML = '<option value="">-- 选择要修改的兑换码 --</option>';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('redemption_codes')
+                    .select('code, customer_name, max_uses, current_uses')
+                    .order('code');
+                
+                if (error) throw error;
+                
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.code;
+                    option.textContent = `${item.code} (${item.current_uses}/${item.max_uses}次) ${item.customer_name ? '- ' + item.customer_name : ''}`;
+                    select.appendChild(option);
+                });
+                
+                document.getElementById('addUsesModal').style.display = 'flex';
+            } catch (error) {
+                alert('加载兑换码列表失败：' + error.message);
+            }
+        }
+
+        // 关闭增加次数模态框
+        function closeAddUsesModal() {
+            document.getElementById('addUsesModal').style.display = 'none';
+        }
+
+        // 为选择的兑换码增加次数
+        async function addUsesToCode() {
+            const selectCode = document.getElementById('addUsesCodeSelect').value;
+            const inputCode = document.getElementById('addUsesCodeInput').value.trim();
+            const addCount = parseInt(document.getElementById('addUsesCount').value);
+            
+            const code = inputCode || selectCode;
+            
+            if (!code) {
+                alert('请选择或输入兑换码！');
+                return;
+            }
+            
+            if (isNaN(addCount) || addCount < 1) {
+                alert('请输入有效的增加次数！');
+                return;
+            }
+            
+            await addUsesToSpecificCode(code, addCount);
+            closeAddUsesModal();
+        }
+
+        // 重置所有兑换码的使用次数
+        async function resetAllUses() {
+            if (!confirm('⚠️ 确定要重置所有兑换码的使用次数吗？此操作会影响所有兑换码！')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('redemption_codes')
+                    .update({
+                        current_uses: 0,
+                        used: false,
+                        used_at: null
+                    })
+                    .gte('id', 0); // 更新所有记录
+                
+                if (error) throw error;
+                
+                alert('✅ 所有兑换码使用次数已重置！');
+                loadCodes();
+                updateStats();
+            } catch (error) {
+                alert('❌ 重置失败：' + error.message);
+            }
+        }
+
+        // 复制到剪贴板
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                alert('✅ 已复制到剪贴板！');
+            } catch (error) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('✅ 已复制到剪贴板！');
+            }
+        }
+
+        // 复制单个兑换码
+        function copySingleCode(code) {
+            copyToClipboard(code);
+        }
+
+        // 导出未使用兑换码
+        async function exportAvailableCodes() {
+            try {
+                const { data, error } = await supabase
+                    .from('redemption_codes')
+                    .select('code, max_uses, current_uses')
+                    .lt('current_uses', supabase.raw('max_uses'))
+                    .gt('expires_at', new Date().toISOString());
+                
+                if (error) throw error;
+                
+                if (!data || data.length === 0) {
+                    alert('❌ 没有可用的兑换码');
+                    return;
+                }
+                
+                const content = data.map(item => 
+                    `${item.code} (${item.current_uses}/${item.max_uses}次)`
+                ).join('\n');
+                
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `可用兑换码_${new Date().toLocaleDateString().replace(/\//g, '-')}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+            } catch (error) {
+                alert('❌ 导出失败：' + error.message);
+            }
+        }
+
+        // 清理过期兑换码
+        async function cleanExpiredCodes() {
+            if (!confirm('确定要清理所有过期的兑换码吗？此操作不可撤销！')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('redemption_codes')
+                    .delete()
+                    .lt('expires_at', new Date().toISOString());
+                
+                if (error) throw error;
+                
+                alert('✅ 清理完成！');
+                loadCodes();
+                updateStats();
+            } catch (error) {
+                alert('❌ 清理失败：' + error.message);
+            }
+        }
+
+        // 删除单个兑换码
+        async function deleteCode(code) {
+            if (!confirm(`确定要删除兑换码 ${code} 吗？此操作不可撤销！`)) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('redemption_codes')
+                    .delete()
+                    .eq('code', code);
+                
+                if (error) throw error;
+                
+                alert('✅ 删除成功！');
+                loadCodes();
+                updateStats();
+            } catch (error) {
+                alert('❌ 删除失败：' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
