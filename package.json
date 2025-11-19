@@ -1,0 +1,10 @@
+{
+  "name": "neihai-test-web",
+  "version": "1.0.0",
+  "description": "内耗耐受度测试静态网页",
+  "main": "index.html", // 关键！指定项目入口文件为 index.html
+  "scripts": {
+    "build": "echo 'No build needed for static HTML'" // 空构建命令，避免 Vercel 报错
+  },
+  "private": true // 标记为私有项目，避免意外发布到 npm
+}
